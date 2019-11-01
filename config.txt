@@ -1,0 +1,8 @@
+{
+	"min_temp": "-15",
+	"max_temp": "15",
+	"temp_step": "5",
+	"min_irra": "1",
+	"max_irra": "5",
+	"irra_step": "1"
+}
