@@ -72,15 +72,6 @@ class AutoPvsys:
 		# save image file
 		im.save(self.img_screenshot)
 		return None
-		
-
-	def debug_draw_image_region(self, img_bgr, loc):
-		for pt in zip(*loc[::-1]):
-			cv2.rectangle(img_bgr, pt, (pt[0]+w, pt[1]+h), (0, 255, 255, 2))
-		cv2.imshow('detected', img_bgr)
-		key = cv2.waitKey(10000)
-		if key == 27:#if ESC is pressed, exit loop
-			cv2.destroyAllWindows()
 
 	def match_images(self, img_set):
 		# take screen shot
