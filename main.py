@@ -1,4 +1,3 @@
-## 
 import pyscreenshot as ImageGrab
 import pyperclip
 from tqdm import trange
@@ -28,7 +27,6 @@ class AutoPvsys:
 		self.img_screenshot = os.path.join(self.dir_img, 'screenshot.png')
 		self.img_full_graph = os.path.join(self.dir_img, 'full_graph.jpg')
 		self.img_temp = os.path.join(self.dir_img, 'temp.jpg')
-		self.img_corner1 = os.path.join(self.dir_img, 'corner1.jpg')
 		self.img_radiation = os.path.join(self.dir_img, 'radiation.jpg')
 		self.img_export = os.path.join(self.dir_img, 'export.jpg')
 		self.img_copy_value = os.path.join(self.dir_img, 'copy_value.jpg')
@@ -36,7 +34,6 @@ class AutoPvsys:
 		self.imgs_screen_1 = {
 			'img_full_graph': self.img_full_graph,
 			'img_temp': self.img_temp,
-			'img_corner1': self.img_corner1,
 			'img_radiation': self.img_radiation,
 			'img_copy_table': self.img_copy_table,
 		}
@@ -73,28 +70,31 @@ class AutoPvsys:
 		im.save(self.img_screenshot)
 		return None
 
-	def match_images(self, img_set):
-		# take screen shot
-		img_src = self.screenshot()
-		if img_src: 
-			# load direct source from screen
-			img_bgr = np.array(img_src)
+	def match_images(self, pattern_set, img_file=None, save_screenshot=False):
+		threshold = 0.8
+		img_src = None
+		# handle screenshot file from external
+		if img_file:
+			self.img_screenshot = img_file  # load up screenshot from external file
 		else:
-			# load image from saved image
-			img_bgr = cv2.imread(self.img_screenshot)
+			img_src = self.screenshot(save=save_screenshot)  # take screen shot
+
+		# load up screenshot
+		if img_src:
+			img_bgr = np.array(img_src)	 # load direct source from screen
+		else:
+			img_bgr = cv2.imread(self.img_screenshot)  # load image from saved image
 		img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
 
-		for k, img_path in img_set.items():
-			print('match image...'+ k, end=' ')
+		for k, img_path in pattern_set.items():
+			print('match image...' + k, end=' ')
 			template = cv2.imread(img_path, 0)
 			w, h = template.shape[::-1]
-
 			res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-			threshold=0.8
 			loc = np.where(res >= threshold)
 			
 			# debug_draw_image_region(img_bgr, loc)
-			if loc:
+			if loc[0]:
 				try:
 					pt = list(zip(*loc[::-1]))[0]
 					pos = (pt[0], pt[1] + h/2)
@@ -104,8 +104,10 @@ class AutoPvsys:
 					print()
 					print('!!! Can not locate PVSyst on Desktop !!!')
 					sys.exit(0)
+			else:
+				print('no found')
 
-	## mouse operation
+	# mouse operation
 	def mouse_move(self, xy, duration=0.25):
 		x = xy[0]
 		y = xy[1]
@@ -117,8 +119,7 @@ class AutoPvsys:
 		pgui.click(x, y, duration=duration)
 		# pgui.PAUSE = 0.5
 
-
-	##  keybaord operation
+	#  keybaord operation
 	def keyboard_enter(self):
 		pgui.press('enter')
 
@@ -156,9 +157,8 @@ class AutoPvsys:
 				self.keybaord_close_window()
 				self.img_loc_flag = True
 				print('all image locations updated')
-					
 
-	## operations
+	# operations
 	def update_temp(self, value):
 		value = str(value)
 		pos = self.img_loc_dict.get('img_temp')
@@ -241,6 +241,7 @@ class AutoPvsys:
 		with open(txt_file) as f:
 			data = json.loads(f.read())
 			return data
+
 
 if __name__ == '__main__':
 	
