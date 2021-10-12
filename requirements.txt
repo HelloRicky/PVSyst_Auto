@@ -1,7 +1,7 @@
 EasyProcess==0.2.7
 MouseInfo==0.1.2
 numpy==1.17.3
-opencv-python==4.1.1.26
+opencv-python==4.2.0.32
 Pillow==6.2.1
 PyAutoGUI==0.9.48
 PyGetWindow==0.0.7
